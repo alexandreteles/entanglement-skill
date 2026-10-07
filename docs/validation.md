@@ -58,6 +58,31 @@ green from 20. The comparator explicitly enforces the red threshold and
 reports complete-inventory metric deltas, including unchanged-hash callers
 whose cognitive complexity changes through recursion resolution.
 
+## Independent forward tests
+
+The reviewer found no blocking defects. Ten independent comparator scenarios
+passed, including exact MI 10 versus 9.999999, missing MI/CogC, duplicate paths,
+unchanged red debt, edited red rejection, deletions, empty inventories, and
+contextual complexity changes. Seven automated CLI tests in this repository
+cover those gate/inventory invariants and distinct snapshot roots.
+
+Two Luna agents followed the draft skill on disposable project copies:
+
+- Go: added a missing-URL-scheme guard and regression test. Inventory grew from
+  9 to 10 files; deltas were +15 NLOC, +4 CC, +3 CogC. The changed source and new
+  test scored 24.79 and 58.06, both green. Unrelated red debt remained visible.
+  All packages passed `go test -mod=readonly ./...`; final analysis reproduced
+  the comparison summary.
+- TypeScript: added an unauthenticated health endpoint and test. Deltas were
+  +12 NLOC, +3 CC, unchanged CogC. Edited files scored 41.20 and 44.50, both
+  green. Targeted tests passed 3/3. The full suite had 10 passes and 2 failures
+  before the change, then 11 passes and the same 2 failures afterward. These
+  existing tests supplied an obsolete flat payload to a nested schema; the
+  skill now explicitly distinguishes new failures from baseline failures.
+
+The skill-creator validator passed. Both new Python files also satisfy the
+skill's no-red file gate. Neither forward test modified its original project.
+
 ## Reproducing checks
 
 Requires Python 3.14+, Entanglement on PATH, and PyYAML for the skill-creator
