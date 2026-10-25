@@ -90,6 +90,8 @@ The target is a green file (MI of **20 or more**).
 The report includes existing red files outside the task.
 The agent must also use the project's usual build and test commands.
 
+The comparator's `--structure` flag requests advisory dependency review. `--require-structure` is an alias. Structural findings, missing or invalid data, and reduced coverage do not change the MI gate.
+
 See [SKILL.md](SKILL.md) for the full instructions.
 
 ## AI Usage Disclaimer

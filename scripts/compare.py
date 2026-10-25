@@ -6,6 +6,8 @@ Print a compact JSON summary; exit 0 when no added/modified file is red,
 1 when the MI gate fails, or 2 for unreadable/incomplete reports. Untouched
 red debt is reported separately. An empty after-state supports deletions;
 two empty inventories cannot demonstrate coverage and are rejected.
+Optional structural findings, missing data, and invalid data are advisory;
+--structure requests these diagnostics even when structure is absent.
 
 Example:
     python3 compare.py before.json after.json --before-root /repo \
@@ -23,6 +25,8 @@ import math
 import os
 from pathlib import Path
 import sys
+
+import structural
 
 
 @dataclass(frozen=True)
@@ -143,6 +147,8 @@ def main() -> int:
     parser.add_argument("after", type=Path)
     parser.add_argument("--before-root", type=Path, required=True)
     parser.add_argument("--after-root", type=Path, required=True)
+    parser.add_argument("--structure", "--require-structure", dest="structure", action="store_true",
+                        help="Request advisory structural review; keep the ordinary MI exit code")
     args = parser.parse_args()
     try:
         summary = compare(load_report(args.baseline, args.before_root.absolute()),
@@ -150,6 +156,10 @@ def main() -> int:
     except (OSError, ValueError, KeyError, TypeError, AttributeError) as error:
         print(f"Incomplete metric comparison: {error}", file=sys.stderr)
         return 2
+    structure = structural.compare(args.baseline, args.after, args.before_root.absolute(),
+                                   args.after_root.absolute(), args.structure)
+    if structure is not None:
+        summary["structure"] = structure
     print(json.dumps(summary, indent=2))
     return 0 if summary["gate_passed"] else 1
 
